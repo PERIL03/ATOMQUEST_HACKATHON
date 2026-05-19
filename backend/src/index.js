@@ -15,6 +15,7 @@ const adminRoutes = require("./routes/admin");
 const reportRoutes = require("./routes/reports");
 const dashboardRoutes = require("./routes/dashboard");
 const { runEscalations } = require("./services/escalations");
+const { prisma } = require("./utils/prisma");
 
 const app = express();
 
@@ -42,6 +43,19 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/healthz", (req, res) => {
   res.json(healthPayload());
+});
+
+app.get("/api/health/db", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ ...healthPayload(), database: "ok" });
+  } catch (error) {
+    res.status(503).json({
+      ...healthPayload(),
+      database: "unreachable",
+      error: error.message,
+    });
+  }
 });
 
 app.use("/api/auth", authRoutes);
