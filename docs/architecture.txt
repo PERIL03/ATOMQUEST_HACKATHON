@@ -1,0 +1,19 @@
+AtomQuest Architecture (MVP)
+
+[React + Vite]
+  |  JWT (Bearer)
+  v
+[Express API]
+  |  Prisma Client
+  v
+[SQLite DB]
+
+Core domains:
+- Users (Employee, Manager, Admin)
+- GoalSheets -> Goals -> Achievements -> CheckIns
+- Cycle (Quarter windows)
+- AuditLog (post-lock changes)
+
+Reporting:
+- CSV export (planned vs actual)
+- Completion dashboard

@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String
+  managerId    String?   
+  manager      User?     @relation("ManagerReports", fields: [managerId], references: [id])
+  reports      User[]    @relation("ManagerReports")
+  goalSheets   GoalSheet[]
+  createdGoals Goal[]    @relation("GoalCreatedBy")
+  auditLogs    AuditLog[] @relation("AuditActor")
+  checkins     CheckIn[]  @relation("CheckInManager")
+  createdSharedGoals SharedGoal[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Cycle {
+  id                 String   @id @default(cuid())
+  year               Int      @unique
+  goalSettingOpenAt  DateTime
+  q1Start            DateTime
+  q2Start            DateTime
+  q3Start            DateTime
+  q4Start            DateTime
+  q4End              DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model GoalSheet {
+  id         String          @id @default(cuid())
+  employeeId String
+  employee   User            @relation(fields: [employeeId], references: [id])
+  status     String          @default("DRAFT")
+  cycleYear  Int
+  lockedAt   DateTime?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  goals      Goal[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([employeeId, cycleYear])
+}
+
+model Goal {
+  id             String           @id @default(cuid())
+  goalSheetId    String
+  goalSheet      GoalSheet        @relation(fields: [goalSheetId], references: [id])
+  thrustArea     String
+  title          String
+  description    String
+  uom            String
+  performance    String           @default("MIN")
+  targetValue    Float
+  weightage      Int
+  deadline       DateTime?
+  sharedGoalId   String?
+  sharedGoal     SharedGoal?      @relation(fields: [sharedGoalId], references: [id])
+  source         String           @default("EMPLOYEE")
+  createdById    String?
+  createdBy      User?            @relation("GoalCreatedBy", fields: [createdById], references: [id])
+  achievements   Achievement[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([goalSheetId])
+}
+
+model SharedGoal {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  thrustArea  String?
+  uom         String
+  performance String
+  targetValue Float
+  weightage   Int
+  deadline    DateTime?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  goals       Goal[]
+}
+
+model Achievement {
+  id            String            @id @default(cuid())
+  goalId        String
+  goal          Goal              @relation(fields: [goalId], references: [id])
+  quarter       String
+  actualValue   Float?
+  completionDate DateTime?
+  status        String            @default("NOT_STARTED")
+  computedScore Float?
+  checkins      CheckIn[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([goalId, quarter])
+}
+
+model CheckIn {
+  id            String   @id @default(cuid())
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  managerId     String
+  manager       User     @relation("CheckInManager", fields: [managerId], references: [id])
+  comment       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  actorId    String
+  actor      User        @relation("AuditActor", fields: [actorId], references: [id])
+  entityType String
+  entityId   String
+  action     String
+  field      String?
+  oldValue   String?
+  newValue   String?
+  createdAt  DateTime    @default(now())
+}

@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.gradient-shell {
+  background: radial-gradient(circle at top left, rgba(246, 194, 103, 0.3), transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(58, 110, 165, 0.2), transparent 50%),
+    linear-gradient(120deg, #f4f2ef 10%, #f2e5dc 55%, #efe4d6 100%);
+}
+
+.card {
+  @apply rounded-3xl bg-white/80 backdrop-blur border border-white/60 shadow-glow;
+}
+
+.card-dark {
+  @apply rounded-3xl bg-ink text-haze shadow-glow;
+}
+
+.section-title {
+  @apply text-2xl font-semibold tracking-tight;
+}
+
+.subtle-label {
+  @apply text-xs uppercase tracking-[0.2em] text-ink/50;
+}
