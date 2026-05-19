@@ -1,5 +1,11 @@
-FROM node:20-alpine
+FROM node:20-bullseye-slim
 WORKDIR /app
+
+# Ensure OpenSSL is available for Prisma engine
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	ca-certificates \
+	openssl \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 COPY package.json package-lock.json* ./
@@ -9,7 +15,7 @@ RUN npm ci --production
 COPY . .
 
 # Generate prisma client (assumes DATABASE_URL provided at build or runtime)
-RUN npx prisma generate || true
+RUN npx prisma generate
 
 EXPOSE 4000
 CMD ["npm", "start"]
