@@ -18,4 +18,5 @@ COPY . .
 RUN npx prisma generate
 
 EXPOSE 4000
-CMD ["npm", "start"]
+RUN chmod +x /app/start.sh
+CMD ["/app/start.sh"]
