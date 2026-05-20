@@ -23,6 +23,15 @@ app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json({ limit: "2mb" }));
 app.use(morgan("dev"));
 
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "AtomQuest API",
+    health: "/api/health",
+    dbHealth: "/api/health/db",
+  });
+});
+
 const healthPayload = () => ({
   status: "ok",
   uptimeSeconds: Math.floor(process.uptime()),
